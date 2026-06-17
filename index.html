@@ -775,6 +775,26 @@ function draw() {
     ctx.beginPath(); ctx.arc(mapCenter.x, mapCenter.y, mapRadius, 0, Math.PI * 2);
     ctx.strokeStyle = '#555'; ctx.lineWidth = 5; ctx.stroke(); ctx.fillStyle = '#1a1a1a'; ctx.fill();
 
+    const waymarkRadius = 18;
+    const waymarkOffset = mapRadius - 35;
+    const waymarks = [
+        { x: mapCenter.x, y: mapCenter.y - waymarkOffset, text: 'A', color: '#ff3333' },
+        { x: mapCenter.x + waymarkOffset, y: mapCenter.y, text: 'B', color: '#ffd700' },
+        { x: mapCenter.x, y: mapCenter.y + waymarkOffset, text: 'C', color: '#4cc9f0' },
+        { x: mapCenter.x - waymarkOffset, y: mapCenter.y, text: 'D', color: '#bf55ec' } 
+    ];
+
+    ctx.save();
+    waymarks.forEach(wm => {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(wm.x - waymarkRadius, wm.y - waymarkRadius, waymarkRadius * 2, waymarkRadius * 2);
+        ctx.strokeStyle = wm.color; ctx.lineWidth = 2;
+        ctx.strokeRect(wm.x - waymarkRadius, wm.y - waymarkRadius, waymarkRadius * 2, waymarkRadius * 2);
+        ctx.fillStyle = wm.color; ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(wm.text, wm.x, wm.y + 2);
+    });
+    ctx.restore();
+
     if (isGameStarted) {
         if (bosses[0].isCasting) drawAoELayers(0.08, 0.12); 
         else if (bossA_Gimmick.showAoE) drawAoELayers(0.35, 0.45); 
