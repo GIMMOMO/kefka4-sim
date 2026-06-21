@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>요성난무 4페 시뮬</title>
+    <title>요성난무 4페 시뮬(0621)</title>
     <style>
         body {
             margin: 0;
@@ -432,7 +432,7 @@ function assign11BossDebuff(wave) {
     let now = Date.now();
     let current11Gimmick = bosses[1].castName;
     let absoluteTime = current11Gimmick === "화염" ? 62 : 80;
-    let wave11Duration = (wave === 1) ? absoluteTime - 12 : absoluteTime - 24;
+    let wave11Duration = Math.round((globalStartTime + absoluteTime * 1000 - now) / 1000);
 
     activeDebuffs.push({
         type: current11Gimmick === "화염" ? "FLAME" : "FLOOD", actionText: current11Gimmick,
@@ -478,10 +478,10 @@ function assignGimmickDebuffs(wave) {
     let isCurrentSet1 = (wave === 1 && firstWaveGroup === "SET1") || (wave === 2 && firstWaveGroup === "SET2");
 
     let absoluteTime = isLongTurn ? 70 : 51;
-    let duration = wave === 1 ? absoluteTime - 8 : absoluteTime - 20;
+    let duration = Math.round((globalStartTime + absoluteTime * 1000 - now) / 1000);
 
     let absoluteEyeTime = wave === 1 ? 57 : 75;
-    let eyeDuration = wave === 1 ? absoluteEyeTime - 8 : absoluteEyeTime - 20;
+    let eyeDuration = Math.round((globalStartTime + absoluteEyeTime * 1000 - now) / 1000);
 
     backgroundEyes.push({ wave: wave, initialDuration: eyeDuration, assignTime: now, timeLeft: eyeDuration, rule: truthStatus, processed: false });
 
@@ -500,7 +500,7 @@ function assignGimmickDebuffs(wave) {
         } else {
             bombAbsoluteTime = hasEye ? 70 : 51;
         }
-        let bombDuration = wave === 1 ? bombAbsoluteTime - 8 : bombAbsoluteTime - 20;
+        let bombDuration = Math.round((globalStartTime + bombAbsoluteTime * 1000 - now) / 1000);
 
         activeDebuffs.push({ type: "BOMB", actionText: isTruthStatus ? "STOP" : "MOVE", img: imgBomb, loadKey: "bomb", color: '#ff9f1c', initialDuration: bombDuration, assignTime: now, timeLeft: bombDuration, rule: truthStatus, row: 1, processed: false });
         
