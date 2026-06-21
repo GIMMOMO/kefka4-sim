@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>요성난무 4페 시뮬(김모모)</title>
+    <title>요성난무 4페 시뮬</title>
     <style>
         body {
             margin: 0;
@@ -353,12 +353,12 @@ let finalPhaseTimeline = [
     { t: 51, triggered: false },
     { t: 53, triggered: false },
     { t: 57, triggered: false },
+    { t: 65, triggered: false },
     { t: 70, triggered: false },
-    { t: 74, triggered: false },
-    { t: 79, triggered: false },
-    { t: 84, triggered: false },
-    { t: 87, triggered: false },
-    { t: 90, triggered: false }
+    { t: 75, triggered: false },
+    { t: 80, triggered: false },
+    { t: 83, triggered: false },
+    { t: 86, triggered: false }
 ];
 
 let subBossPlacedAoEs = [];
@@ -431,7 +431,7 @@ function randomizeGimmick() {
 function assign11BossDebuff(wave) {
     let now = Date.now();
     let current11Gimmick = bosses[1].castName;
-    let absoluteTime = current11Gimmick === "화염" ? 62 : 84;
+    let absoluteTime = current11Gimmick === "화염" ? 62 : 80;
     let wave11Duration = (wave === 1) ? absoluteTime - 12 : absoluteTime - 24;
 
     activeDebuffs.push({
@@ -477,10 +477,10 @@ function assignGimmickDebuffs(wave) {
     let isLongTurn = (wave === 1 && firstWaveDurationType === "LONG") || (wave === 2 && firstWaveDurationType === "SHORT");
     let isCurrentSet1 = (wave === 1 && firstWaveGroup === "SET1") || (wave === 2 && firstWaveGroup === "SET2");
 
-    let absoluteTime = isLongTurn ? 74 : 51;
+    let absoluteTime = isLongTurn ? 70 : 51;
     let duration = wave === 1 ? absoluteTime - 8 : absoluteTime - 20;
 
-    let absoluteEyeTime = wave === 1 ? 57 : 79;
+    let absoluteEyeTime = wave === 1 ? 57 : 75;
     let eyeDuration = wave === 1 ? absoluteEyeTime - 8 : absoluteEyeTime - 20;
 
     backgroundEyes.push({ wave: wave, initialDuration: eyeDuration, assignTime: now, timeLeft: eyeDuration, rule: truthStatus, processed: false });
@@ -493,8 +493,20 @@ function assignGimmickDebuffs(wave) {
         activeDebuffs.push({ type: typeStr, actionText: actionTxt, img: isWater ? imgWater : imgThunder, loadKey: isWater ? "water" : "thunder", color: isWater ? '#00b4d8' : '#bf55ec', initialDuration: duration, assignTime: now, timeLeft: duration, rule: truthStatus, row: 1, processed: false });
     } else {
         let isTruthStatus = (truthStatus === "진실");
-        activeDebuffs.push({ type: "BOMB", actionText: isTruthStatus ? "STOP" : "MOVE", img: imgBomb, loadKey: "bomb", color: '#ff9f1c', initialDuration: duration, assignTime: now, timeLeft: duration, rule: truthStatus, row: 1, processed: false });
-        activeDebuffs.push({ type: "EYE", actionText: isTruthStatus ? "HIDE" : "LOOK", img: imgEye, loadKey: "eye", color: '#ff3333', initialDuration: eyeDuration, assignTime: now, timeLeft: eyeDuration, rule: truthStatus, row: 1, processed: false });
+        let hasEye = Math.random() < 0.5;
+        let bombAbsoluteTime;
+        if (wave === 1) {
+            bombAbsoluteTime = hasEye ? 51 : 70;
+        } else {
+            bombAbsoluteTime = hasEye ? 70 : 51;
+        }
+        let bombDuration = wave === 1 ? bombAbsoluteTime - 8 : bombAbsoluteTime - 20;
+
+        activeDebuffs.push({ type: "BOMB", actionText: isTruthStatus ? "STOP" : "MOVE", img: imgBomb, loadKey: "bomb", color: '#ff9f1c', initialDuration: bombDuration, assignTime: now, timeLeft: bombDuration, rule: truthStatus, row: 1, processed: false });
+        
+        if (hasEye) {
+            activeDebuffs.push({ type: "EYE", actionText: isTruthStatus ? "HIDE" : "LOOK", img: imgEye, loadKey: "eye", color: '#ff3333', initialDuration: eyeDuration, assignTime: now, timeLeft: eyeDuration, rule: truthStatus, row: 1, processed: false });
+        }
     }
 }
 
@@ -910,7 +922,7 @@ function drawCenterBossRings(bx, by) {
             ctx.drawImage(gaImg, -ringRadiusX - size/2, -size/2, size, size); ctx.drawImage(gaImg, ringRadiusX - size/2, -size/2, size, size);
         }
         ctx.restore();
-    } else {
+    } else if (currentWave < 3 || bosses[0].isCasting) {
         ctx.save(); ctx.translate(bx, by - 25);
         ctx.strokeStyle = 'rgba(138, 43, 226, 0.4)'; ctx.lineWidth = 6;
         ctx.beginPath(); ctx.ellipse(0, 0, ringRadiusX, ringRadiusY, 0, 0, Math.PI * 2); ctx.stroke();
@@ -1239,7 +1251,7 @@ function draw() {
     if (isGameStarted) {
         let visibleDebuffs = activeDebuffs.filter(d => !d.processed);
         if (visibleDebuffs.length > 0) {
-            const debuffOrder = { "DEAD_SCAR": 1, "LIVE_SCAR": 1, "ALAG": 2, "TRANSCEND": 2, "EYE": 3, "THUNDER": 4, "WATER": 4, "BOMB": 5, "FLAME": 6, "FLOOD": 6 };
+            const debuffOrder = { "DEAD_SCAR": 1, "LIVE_SCAR": 1, "ALAG": 2, "TRANSCEND": 2, "EYE": 3, "THUNDER": 4, "WATER": 4, "BOMB": 5, "FLAME": 6, "FLOOD": 7 };
             visibleDebuffs.sort((a, b) => (debuffOrder[a.type] || 99) - (debuffOrder[b.type] || 99));
             
             const rightMarginX = 760;
@@ -1467,7 +1479,7 @@ function update() {
                         let targetEye = backgroundEyes.find(e => e.wave === 1 && !e.processed);
                         if (targetEye) executeSingleEyeCheck(targetEye);
                     }
-                    else if (evt.t === 70) {
+                    else if (evt.t === 65) {
                         blizzaga_Gimmick.isCasting = true;
                         blizzaga_Gimmick.startTime = Date.now();
                         blizzaga_Gimmick.progress = 0;
@@ -1477,8 +1489,8 @@ function update() {
                         blizzaga_Gimmick.showAoE = false;
                         pastBlizzagaTruth = blizzaga_Gimmick.effect;
                     }
-                    else if (evt.t === 74) executeEnvironmentCheck(74);
-                    else if (evt.t === 79) {
+                    else if (evt.t === 70) executeEnvironmentCheck(70);
+                    else if (evt.t === 75) {
                         let targetEye = backgroundEyes.find(e => e.wave === 2 && !e.processed);
                         if (targetEye) executeSingleEyeCheck(targetEye);
 
@@ -1487,17 +1499,17 @@ function update() {
                         finalMemoryState.topTruth = effectTypes[Math.floor(Math.random() * 2)];
                         finalMemoryState.bottomTruth = effectTypes[Math.floor(Math.random() * 2)];
                     }
-                    else if (evt.t === 84) {
+                    else if (evt.t === 80) {
                         finalMemoryState.isCasting = true;
                         finalMemoryState.castStartTime = Date.now();
                         finalMemoryState.thunderPattern = Math.floor(Math.random() * 4);
                         finalMemoryState.blizzardPattern = Math.floor(Math.random() * 2);
                     }
-                    else if (evt.t === 87) {
+                    else if (evt.t === 83) {
                         checkFinalMemorySafety();
                         finalMemoryState.isCasting = false;
                     }
-                    else if (evt.t === 90) {
+                    else if (evt.t === 86) {
                         if (!player.isDead) isGameCleared = true;
                     }
                 }
